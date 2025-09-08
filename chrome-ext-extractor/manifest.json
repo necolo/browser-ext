@@ -8,7 +8,6 @@
     "scripting"
   ],
   "action": {
-    "default_popup": "popup.html",
     "default_title": "Extract Element",
     "default_icon": {
       "16": "icons/icon16.png",
