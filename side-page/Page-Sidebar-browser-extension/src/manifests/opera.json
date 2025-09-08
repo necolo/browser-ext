@@ -1,0 +1,38 @@
+{
+  "name": "__MSG_namefull__",
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "sidebar_action": {
+    "default_icon": {
+      "16": "images/icon16.png",
+      "32": "images/icon32.png"
+    },
+    "default_title": "__MSG_name__",
+    "default_panel": "panel.html",
+    "open_at_install": true
+  },
+  "commands": {
+    "_execute_sidebar_action": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+P",
+        "mac": "MacCtrl+Shift+P"
+      }
+    },
+    "toggle-feature-openweb": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+N",
+        "mac": "MacCtrl+Shift+N"
+      },
+      "description": "__MSG_titelcurrenttab__"
+    }
+  },
+  "offline_enabled": true,
+  "minimum_chrome_version": "114",
+  "host_permissions": ["<all_urls>"],
+  "permissions": ["contextMenus", "storage", "declarativeNetRequestWithHostAccess"],
+  "optional_permissions": ["bookmarks"],
+  "storage": {
+    "managed_schema": "schema.json"
+  }
+}
