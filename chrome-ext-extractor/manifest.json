@@ -5,7 +5,8 @@
   "description": "Extract webpage elements with optimized formatting for LLM input",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "notifications"
   ],
   "action": {
     "default_title": "Extract Element",

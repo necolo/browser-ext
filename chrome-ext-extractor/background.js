@@ -43,6 +43,14 @@ chrome.action.onClicked.addListener((tab) => {
                 tabId: tab.id,
                 title: "Extract Element"
             });
+            
+            // Show notification that extraction is stopped
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'icons/icon48.png',
+                title: 'Element Extractor',
+                message: 'Extraction mode deactivated'
+            });
         } else {
             // Start extraction
             chrome.tabs.sendMessage(tab.id, {action: 'startExtraction'});
@@ -58,6 +66,14 @@ chrome.action.onClicked.addListener((tab) => {
             chrome.action.setTitle({
                 tabId: tab.id,
                 title: "Click on any element to extract (ESC to cancel)"
+            });
+            
+            // Show notification that extraction is active
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'icons/icon48.png',
+                title: 'Element Extractor',
+                message: 'Extraction mode activated - Click any element to extract'
             });
         }
     });

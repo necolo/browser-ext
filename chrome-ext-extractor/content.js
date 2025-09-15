@@ -22,6 +22,9 @@ class ElementExtractor {
         document.addEventListener('click', this.boundHandlers.click, true);
         document.addEventListener('keydown', this.boundHandlers.keydown, true);
         
+        // Show notification that extraction is active
+        this.showNotification('Element extraction is now active');
+        
         console.log('Element extraction started');
     }
 
@@ -39,6 +42,9 @@ class ElementExtractor {
         
         // Clean up highlighting
         this.removeHighlight();
+        
+        // Show notification that extraction is stopped
+        this.showNotification('Element extraction stopped');
         
         console.log('Element extraction stopped');
     }
@@ -76,6 +82,7 @@ class ElementExtractor {
         if (event.key === 'Escape') {
             event.stopPropagation();
             event.preventDefault();
+            this.showNotification('Element extraction cancelled');
             this.stopExtraction();
         }
     }
