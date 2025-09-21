@@ -102,6 +102,93 @@ class ElementExtractor {
         }
     }
 
+    isElementHidden(element) {
+        if (!element) return false;
+        
+        // Get computed styles
+        const computedStyle = window.getComputedStyle(element);
+        
+        // Check for common ways elements can be hidden
+        const isDisplayNone = computedStyle.display === 'none';
+        const isVisibilityHidden = computedStyle.visibility === 'hidden';
+        const isOpacityZero = parseFloat(computedStyle.opacity) === 0;
+
+        // Check if element or any parent has display: none
+        // let parent = element.parentElement;
+        // let parentHidden = false;
+        // while (parent && parent !== document.body) {
+        //     const parentStyle = window.getComputedStyle(parent);
+        //     if (parentStyle.display === 'none') {
+        //         parentHidden = true;
+        //         break;
+        //     }
+        //     parent = parent.parentElement;
+        // }
+        
+        const isHidden = isDisplayNone || isVisibilityHidden || isOpacityZero;
+        if (isHidden) this.showNotification(`Hidden: ${element.textContent}`);
+        return isHidden;
+    }
+
+    getElementStyles(element) {
+        if (!element) return null;
+        
+        const computedStyle = window.getComputedStyle(element);
+        const styles = {};
+        
+        // Get relevant visibility-related styles
+        const visibilityStyles = [
+            'display', 'visibility', 'opacity', 'width', 'height',
+            'max-width', 'max-height', 'min-width', 'min-height',
+            'position', 'top', 'left', 'right', 'bottom', 'z-index'
+        ];
+        
+        visibilityStyles.forEach(prop => {
+            styles[prop] = computedStyle[prop];
+        });
+        
+        // Add element dimensions
+        styles.dimensions = {
+            offsetWidth: element.offsetWidth,
+            offsetHeight: element.offsetHeight,
+            clientWidth: element.clientWidth,
+            clientHeight: element.clientHeight,
+            scrollWidth: element.scrollWidth,
+            scrollHeight: element.scrollHeight
+        };
+        
+        // Add bounding rect
+        const rect = element.getBoundingClientRect();
+        styles.boundingRect = {
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height
+        };
+        
+        return styles;
+    }
+
+    // Debug method to log element visibility information
+    debugElementVisibility(element) {
+        if (!element) {
+            console.log('Element is null or undefined');
+            return;
+        }
+
+        const styles = this.getElementStyles(element);
+        const isHidden = this.isElementHidden(element);
+        
+        console.group(`Element Visibility Debug: ${element.tagName}`);
+        console.log('Is Hidden:', isHidden);
+        console.log('Display:', styles.display);
+        console.log('Visibility:', styles.visibility);
+        console.log('Opacity:', styles.opacity);
+        console.log('Dimensions:', styles.dimensions);
+        console.log('Bounding Rect:', styles.boundingRect);
+        console.groupEnd();
+    }
+
     extractElement(element) {
         if (!element) return;
         
@@ -151,45 +238,29 @@ class ElementExtractor {
 
         // Extract text content with structure preservation
         result.element.textContent = this.extractStructuredText(element);
-        
-        // Extract attributes if relevant
-        const relevantAttrs = ['href', 'src', 'alt', 'title', 'data-*', 'aria-*'];
-        result.element.attributes = {};
-        
-        for (let attr of element.attributes) {
-            if (relevantAttrs.some(pattern => {
-                if (pattern.includes('*')) {
-                    return attr.name.startsWith(pattern.replace('*', ''));
-                }
-                return attr.name === pattern;
-            })) {
-                result.element.attributes[attr.name] = attr.value;
-            }
-        }
-
-        // Get parent context for better understanding
-        result.element.context = this.getElementContext(element);
 
         // Format for LLM consumption
         return this.formatForLLM(result);
     }
 
     extractStructuredText(element) {
-        const clone = element.cloneNode(true);
+        // const clone = element.cloneNode(true);
         
         // Remove script and style elements
-        const unwanted = clone.querySelectorAll('script, style, noscript');
-        unwanted.forEach(el => el.remove());
+        // const unwanted = clone.querySelectorAll('script, style, noscript');
+        // unwanted.forEach(el => el.remove());
         
         // Process different element types
         const textParts = [];
         
-        this.processElementForText(clone, textParts, 0);
+        this.processElementForText(element, textParts, 0);
         
         return textParts.join('\n').trim();
     }
 
     processElementForText(element, textParts, depth) {
+        if (this.isElementHidden(element)) return;
+
         const indent = '  '.repeat(depth);
         
         // Handle different element types
@@ -275,53 +346,7 @@ class ElementExtractor {
 
     formatForLLM(data) {
         const formatted = [];
-        
-        // formatted.push('=== EXTRACTED WEBPAGE ELEMENT ===');
-        // formatted.push(`Page: ${data.title}`);
-        // formatted.push(`URL: ${data.url}`);
-        // formatted.push(`Extracted: ${data.timestamp}`);
-        // formatted.push('');
-        
-        // formatted.push('--- Element Details ---');
-        // formatted.push(`Tag: <${data.element.tagName}>`);
-        
-        // if (data.element.id) {
-        //     formatted.push(`ID: ${data.element.id}`);
-        // }
-        
-        // if (data.element.className) {
-        //     formatted.push(`Classes: ${data.element.className}`);
-        // }
-        
-        // formatted.push(`Position: ${data.element.position.x}x${data.element.position.y} (${data.element.position.width}×${data.element.position.height})`);
-        // formatted.push('');
-        
-        // if (Object.keys(data.element.attributes).length > 0) {
-        //     formatted.push('--- Attributes ---');
-        //     for (const [key, value] of Object.entries(data.element.attributes)) {
-        //         formatted.push(`${key}: ${value}`);
-        //     }
-        //     formatted.push('');
-        // }
-        
-        // if (data.element.context.parent) {
-        //     formatted.push('--- Context ---');
-        //     formatted.push(`Parent: <${data.element.context.parent.tagName}>`);
-        //     if (data.element.context.parent.id) {
-        //         formatted.push(`Parent ID: ${data.element.context.parent.id}`);
-        //     }
-        //     if (data.element.context.parent.className) {
-        //         formatted.push(`Parent Classes: ${data.element.context.parent.className}`);
-        //     }
-        //     formatted.push(`Children: ${data.element.context.children}`);
-        //     formatted.push('');
-        // }
-        
-        // formatted.push('--- Content ---');
         formatted.push(data.element.textContent);
-        // formatted.push('');
-        // formatted.push('=== END EXTRACTION ===');
-        
         return formatted.join('\n');
     }
 
