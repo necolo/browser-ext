@@ -1,9 +1,8 @@
 .element-extractor-highlight {
     outline: 3px solid #ff6b6b !important;
-    outline-offset: 2px !important;
     background-color: rgba(255, 107, 107, 0.1) !important;
     cursor: crosshair !important;
-    position: relative !important;
+    /* position: relative !important; */
     z-index: 999999 !important;
     transition: all 0.2s ease !important;
 }
